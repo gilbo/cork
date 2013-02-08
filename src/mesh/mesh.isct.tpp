@@ -803,9 +803,6 @@ public:
     
     void dumpIsctPoints(std::vector<Vec3d> *points);
     void dumpIsctEdges(std::vector< std::pair<Vec3d,Vec3d> > *edges);
-
-private: // functions here to get around a GCC bug...
-    void createRealPtFromGluePt(GluePt glue);
     
 protected: // DATA
     IterPool<GluePointMarker>   glue_pts;
@@ -846,6 +843,10 @@ private:
     void fillOutTriData(Tptr tri, Tptr parent);
 private:
     class EdgeCache;
+    
+private: // functions here to get around a GCC bug...
+    void createRealPtFromGluePt(GluePt glue);
+    void createRealTriangles(Tprob tprob, EdgeCache &ecache);
 };
 
 template<class T, uint LEN> inline
@@ -1328,6 +1329,30 @@ void Mesh<VertData,TriData>::IsctProblem::createRealPtFromGluePt(GluePt glue) {
 }
 
 template<class VertData, class TriData>
+void Mesh<VertData,TriData>::IsctProblem::createRealTriangles(
+    Tprob tprob, EdgeCache &ecache
+) {
+    for(GTptr gt : tprob->gtris) {
+        Tptr        t               = TopoCache::newTri();
+                    gt->concrete    = t;
+        Tri         &tri            = TopoCache::mesh->tris[t->ref];
+        for(uint k=0; k<3; k++) {
+            Vptr    v               = gt->verts[k]->concrete;
+                    t->verts[k]     = v;
+                    v->tris.push_back(t);
+                    tri.v[k]        = v->ref;
+            
+            Eptr    e = ecache.getTriangleEdge(gt, k, tprob->the_tri);
+                    e->tris.push_back(t);
+                    t->edges[k] = e;
+        }
+                    fillOutTriData(t, tprob->the_tri);
+    }
+    // Once all the pieces are hooked up, let's kill the old triangle!
+    TopoCache::deleteTri(tprob->the_tri);
+}
+
+template<class VertData, class TriData>
 void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
 {
     // solve a subdivision problem in each triangle
@@ -1339,8 +1364,6 @@ void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
     
     // Let's go through the glue points and create a new concrete
     // vertex object for each of these.
-    // naming this closure is a weird hack to get around a GCC bug
-    
     glue_pts.for_each([&](GluePt glue) {
         createRealPtFromGluePt(glue);
     });
@@ -1352,26 +1375,8 @@ void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
     // for each of those.
     // Along the way, let's go ahead and hook up edges as appropriate
     tprobs.for_each([&](Tprob tprob) {
-        for(GTptr gt : tprob->gtris) {
-            Tptr        t               = TopoCache::newTri();
-                        gt->concrete    = t;
-            Tri         &tri            = TopoCache::mesh->tris[t->ref];
-            for(uint k=0; k<3; k++) {
-                Vptr    v               = gt->verts[k]->concrete;
-                        t->verts[k]     = v;
-                        v->tris.push_back(t);
-                        tri.v[k]        = v->ref;
-                
-                Eptr    e = ecache.getTriangleEdge(gt, k, tprob->the_tri);
-                        e->tris.push_back(t);
-                        t->edges[k] = e;
-            }
-                        fillOutTriData(t, tprob->the_tri);
-        }
-        // Once all the pieces are hooked up, let's kill the old triangle!
-        TopoCache::deleteTri(tprob->the_tri);
+        createRealTriangles(tprob, ecache);
     });
-    
     
     // mark all edges as normal by zero-ing out the data pointer
     TopoCache::edges.for_each([](Eptr e) {
