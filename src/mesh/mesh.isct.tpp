@@ -1326,7 +1326,8 @@ void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
     
     // Let's go through the glue points and create a new concrete
     // vertex object for each of these.
-    glue_pts.for_each([&](GluePt glue) {
+    // naming this closure is a weird hack to get around a GCC bug
+    auto createRealPtFromGluePt = [&](GluePt glue) {
         ENSURE(glue->copies.size() > 0);
         Vptr        v               = TopoCache::newVert();
         VertData    &data           = TopoCache::mesh->verts[v->ref];
@@ -1334,7 +1335,8 @@ void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
                     fillOutVertData(glue, data);
         for(IVptr iv : glue->copies)
                     iv->concrete    = v;
-    });
+    };
+    glue_pts.for_each(createRealPtFromGluePt);
     
     
     EdgeCache ecache(this);
