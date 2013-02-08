@@ -803,6 +803,9 @@ public:
     
     void dumpIsctPoints(std::vector<Vec3d> *points);
     void dumpIsctEdges(std::vector< std::pair<Vec3d,Vec3d> > *edges);
+
+private: // functions here to get around a GCC bug...
+    void createRealPtFromGluePt(GluePt glue);
     
 protected: // DATA
     IterPool<GluePointMarker>   glue_pts;
@@ -1313,6 +1316,16 @@ private:
     std::vector< ShortVec<EdgeEntry, 8> >   edges;
 };
 
+template<class VertData, class TriData>
+void Mesh<VertData,TriData>::IsctProblem::createRealPtFromGluePt(GluePt glue) {
+    ENSURE(glue->copies.size() > 0);
+    Vptr        v               = TopoCache::newVert();
+    VertData    &data           = TopoCache::mesh->verts[v->ref];
+                data.pos        = glue->copies[0]->coord;
+                fillOutVertData(glue, data);
+    for(IVptr iv : glue->copies)
+                iv->concrete    = v;
+}
 
 template<class VertData, class TriData>
 void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
@@ -1327,17 +1340,8 @@ void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
     // Let's go through the glue points and create a new concrete
     // vertex object for each of these.
     // naming this closure is a weird hack to get around a GCC bug
-    auto createRealPtFromGluePt = [&](GluePt glue) {
-        ENSURE(glue->copies.size() > 0);
-        Vptr        v               = TopoCache::newVert();
-        VertData    &data           = TopoCache::mesh->verts[v->ref];
-                    data.pos        = glue->copies[0]->coord;
-                    fillOutVertData(glue, data);
-        for(IVptr iv : glue->copies)
-                    iv->concrete    = v;
-    };
-    glue_pts.for_each(createRealPtFromGluePt);
     
+    glue_pts.for_each(createRealPtFromGluePt);
     
     EdgeCache ecache(this);
     
