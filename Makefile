@@ -34,11 +34,14 @@ PLATFORM := $(shell uname)
 # *********--+
 # | Programs |
 # +----------+
-CPP11_FLAGS := -std=c++11 -stdlib=libc++ -Wno-c++11-extensions
-#CC  := gcc
-#CXX := g++
-CC  := clang
-CXX := clang++
+CPP11_FLAGS := -std=c++11
+CC  := gcc
+CXX := g++
+ifeq ($(PLATFORM),Darwin) # on mac
+    CC  := clang
+    CXX := clang++
+    CPP11_FLAGS := $(CPP11_FLAGS) -stdlib=libc++ -Wno-c++11-extensions
+endif
 RM  := rm
 CP  := cp
 
@@ -66,7 +69,7 @@ INC       := $(INC) $(GMPINC)
 # use the second line to disable profiling instrumentation
 # PROFILING := -pg
 PROFILING :=
-CCFLAGS   := -Wall $(INC) $(CONFIG) -O2 -DNDEBUG $(PROFILING) -Winline
+CCFLAGS   := -Wall $(INC) $(CONFIG) -O2 -DNDEBUG $(PROFILING)
 CXXFLAGS  := $(CCFLAGS) $(CPP11_FLAGS)
 CCDFLAGS  := -Wall $(INC) $(CONFIG) -ggdb
 CXXDFLAGS := $(CCDFLAGS)
