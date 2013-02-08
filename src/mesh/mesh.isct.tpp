@@ -1341,7 +1341,9 @@ void Mesh<VertData,TriData>::IsctProblem::resolveAllIntersections()
     // vertex object for each of these.
     // naming this closure is a weird hack to get around a GCC bug
     
-    glue_pts.for_each(createRealPtFromGluePt);
+    glue_pts.for_each([&](GluePt glue) {
+        createRealPtFromGluePt(glue)
+    });
     
     EdgeCache ecache(this);
     
