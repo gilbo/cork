@@ -63,7 +63,7 @@ endif
 # include paths (flattens the hierarchy for include directives)
 INC       := -I src/ $(addprefix -I src/,$(SUBDIRECTORIES))
 # Place the location of GMP header files here
-GMPINC    := -I $(GMP_PREFIX)/include
+GMPINC    := -I $(GMP_INC_DIR)
 INC       := $(INC) $(GMPINC)
 
 # use the second line to disable profiling instrumentation
@@ -75,9 +75,9 @@ CCDFLAGS  := -Wall $(INC) $(CONFIG) -ggdb
 CXXDFLAGS := $(CCDFLAGS)
 
 # Place the location of GMP libraries here
-#GMPLD     := -L$(GMP_PREFIX)/lib -lgmpxx -lgmp
+#GMPLD     := -L$(GMP_LIB_DIR) -lgmpxx -lgmp
 # static version…
-GMPLD     := $(GMP_PREFIX)/lib/libgmpxx.a $(GMP_PREFIX)/lib/libgmp.a
+GMPLD     := $(GMP_LIB_DIR)/libgmpxx.a $(GMP_LIB_DIR)/libgmp.a
 
 GL_LD     := -framework OpenGL
 
