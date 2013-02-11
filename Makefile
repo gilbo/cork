@@ -35,11 +35,11 @@ PLATFORM := $(shell uname)
 # | Programs |
 # +----------+
 CPP11_FLAGS := -std=c++11
-CC  := gcc
-CXX := g++
-ifeq ($(PLATFORM),Darwin) # on mac
+#CC  := gcc
+#CXX := g++
     CC  := clang
     CXX := clang++
+ifeq ($(PLATFORM),Darwin) # on mac
     CPP11_FLAGS := $(CPP11_FLAGS) -stdlib=libc++ -Wno-c++11-extensions
 endif
 RM  := rm
@@ -75,14 +75,17 @@ CCDFLAGS  := -Wall $(INC) $(CONFIG) -ggdb
 CXXDFLAGS := $(CCDFLAGS)
 
 # Place the location of GMP libraries here
-#GMPLD     := -L$(GMP_LIB_DIR) -lgmpxx -lgmp
-# static version…
-GMPLD     := $(GMP_LIB_DIR)/libgmpxx.a $(GMP_LIB_DIR)/libgmp.a
+GMPLD     := -L$(GMP_LIB_DIR) -lgmpxx -lgmp
+# static version...
+#GMPLD     := $(GMP_LIB_DIR)/libgmpxx.a $(GMP_LIB_DIR)/libgmp.a
 
-GL_LD     := -framework OpenGL
+LINK         := $(CXXFLAGS) $(GMPLD)
+LINKD        := $(CXXDFLAGS) $(GMPLD)
+ifeq ($(PLATFORM),Darwin)
+  LINK  := $(LINK) -Wl,-no_pie
+  LINKD := $(LINK) -Wl,-no_pie
+endif
 
-LINK         := $(CXXFLAGS) $(GMPLD) $(GL_LD) -Wl,-no_pie
-LINKD        := $(CXXDFLAGS) $(GMPLD) $(GL_LD) -Wl,-no_pie
 
 # ***********************
 # * SOURCE DECLARATIONS *
