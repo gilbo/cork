@@ -35,10 +35,8 @@ PLATFORM := $(shell uname)
 # | Programs |
 # +----------+
 CPP11_FLAGS := -std=c++11
-#CC  := gcc
-#CXX := g++
-    CC  := clang
-    CXX := clang++
+CC  := clang
+CXX := clang++
 ifeq ($(PLATFORM),Darwin) # on mac
     CPP11_FLAGS := $(CPP11_FLAGS) -stdlib=libc++ -Wno-c++11-extensions
 endif
@@ -48,12 +46,7 @@ CP  := cp
 # +--------------+
 # | Option Flags |
 # +--------------+
-# these defines remove extraneous dependencies in inherited code
-#CONFIG    := -DDDF_NOQHULL -DMSSTANDALONE
-# this line correctly compiles Tetgen as a library
-#CONFIG    := $(CONFIG) -DTETLIBRARY
-
-# also let the preprocessor know which platform we're on
+# Let the preprocessor know which platform we're on
 ifeq ($(PLATFORM),Darwin)
   CONFIG  := $(CONFIG) -DMACOSX
 else
@@ -62,7 +55,7 @@ endif
 
 # include paths (flattens the hierarchy for include directives)
 INC       := -I src/ $(addprefix -I src/,$(SUBDIRECTORIES))
-# Place the location of GMP header files here
+# get the location of GMP header files from makeConstants include file
 GMPINC    := -I $(GMP_INC_DIR)
 INC       := $(INC) $(GMPINC)
 
@@ -186,10 +179,6 @@ lib/lib$(LIB_TARGET_NAME)debug.a: $(DEBUG)
 	@echo "Bundling $@"
 	@ar rcs $@ $(DEBUG)
 
-bin/filters: obj/filterBuilder.o
-	@echo "Linking filters"
-	@$(CXX) -o bin/filters obj/filterBuilder.o $(LINK)
-
 bin/cork: $(MAIN_OBJ)
 	@echo "Linking cork command line tool"
 	@$(CXX) -o bin/cork $(MAIN_OBJ) $(LINK)
@@ -197,8 +186,6 @@ bin/cork: $(MAIN_OBJ)
 bin/off2obj: obj/off2obj.o
 	@echo "Linking off2obj"
 	@$(CXX) -o bin/off2obj obj/off2obj.o $(LINK)
-
-assembly: obj/isct/empty3d.s
 
 # +------------------------------+
 # | Specialized File Build Rules |
@@ -211,11 +198,6 @@ obj/isct/triangle.o: src/isct/triangle.c
                -DCDT_ONLY -DTRILIBRARY \
                -Wall -DANSI_DECLARATORS \
                -o obj/isct/triangle.o -c src/isct/triangle.c
-
-# generate some assembly for hand inspection
-obj/isct/empty3d.s: src/isct/empty3d.cpp
-	@echo "Compiling to Readable Assembly $@"
-	@$(CXX) $(CXXFLAGS) -S -o obj/isct/empty3d.s -c src/isct/empty3d.cpp
 
 # +------------------------------------+
 # | Generic Source->Object Build Rules |
@@ -245,7 +227,7 @@ includes: $(HEADER_COPIES)
 include/%.h: src/%.h
 	@echo "updating $@"
 	@cp $< $@
-#also support implementation files
+#also support template implementation files
 include/%.tpp: src/%.tpp
 	@echo "updating $@"
 	@cp $< $@
@@ -253,7 +235,6 @@ include/%.tpp: src/%.tpp
 # +---------------+
 # | cleaning rule |
 # +---------------+
-# using /*/* to allow two-deep anonymous pattern matching
 clean:
 	-@$(RM) -r obj depend debug include bin lib
 	-@$(RM) bin/off2obj
