@@ -789,6 +789,8 @@ public:
         // create edges as necessary...
     }*/
     
+    bool hasIntersections(); // test for iscts, exit if one is found
+    
     void findIntersections();
     void resolveAllIntersections();
 private:
@@ -1056,6 +1058,29 @@ void Mesh<VertData,TriData>::IsctProblem::findIntersections()
     });
 }
 
+template<class VertData, class TriData>
+bool Mesh<VertData,TriData>::IsctProblem::hasIntersections()
+{
+    bool foundIsct = false;
+    Empty3d::degeneracy_count = 0;
+    // Find some edge-triangle intersection point...
+    bvh_edge_tri([&](Eptr eisct, Tptr tisct)->bool{
+      if(checkIsct(eisct,tisct)) {
+        foundIsct = true;
+        return false; // break;
+      }
+      if(Empty3d::degeneracy_count > 0) {
+        return false; // break;
+      }
+      return true; // continue
+    });
+    
+    if(Empty3d::degeneracy_count > 0 || foundIsct) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 template<class VertData, class TriData> inline
@@ -1469,6 +1494,14 @@ void Mesh<VertData,TriData>::resolveIntersections()
     iproblem.commit();
     
     //iproblem.print();
+}
+
+template<class VertData, class TriData>
+bool Mesh<VertData,TriData>::isSelfIntersecting()
+{
+    IsctProblem iproblem(this);
+    
+    return iproblem.hasIntersections();
 }
 
 

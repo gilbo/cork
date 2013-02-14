@@ -27,6 +27,16 @@
 
 #include "mesh.h"
 
+
+void freeCorkTriMesh(CorkTriMesh *mesh)
+{
+    delete[] mesh->triangles;
+    delete[] mesh->vertices;
+    mesh->n_triangles = 0;
+    mesh->n_vertices = 0;
+}
+
+
 struct CorkTriangle;
 
 struct CorkVertex :
@@ -97,223 +107,152 @@ struct CorkTriangle :
 using RawCorkMesh = RawMesh<CorkVertex, CorkTriangle>;
 using CorkMesh = Mesh<CorkVertex, CorkTriangle>;
 
-void cMesh2CorkMesh(
-    uint n_triangles_in, uint *triangles_in,
-    uint n_vertices_in, float *vertices_in,
+void corkTriMesh2CorkMesh(
+    CorkTriMesh in,
     CorkMesh *mesh_out
 ) {
     RawCorkMesh raw;
-    raw.vertices.resize(n_vertices_in);
-    raw.triangles.resize(n_triangles_in);
-    if(n_vertices_in == 0 || n_triangles_in == 0) {
+    raw.vertices.resize(in.n_vertices);
+    raw.triangles.resize(in.n_triangles);
+    if(in.n_vertices == 0 || in.n_triangles == 0) {
         ERROR("empty mesh input to Cork routine.");
         *mesh_out = CorkMesh(raw);
         return;
     }
     
     uint max_ref_idx = 0;
-    for(uint i=0; i<n_triangles_in; i++) {
-        raw.triangles[i].a = triangles_in[3*i+0];
-        raw.triangles[i].b = triangles_in[3*i+1];
-        raw.triangles[i].c = triangles_in[3*i+2];
+    for(uint i=0; i<in.n_triangles; i++) {
+        raw.triangles[i].a = in.triangles[3*i+0];
+        raw.triangles[i].b = in.triangles[3*i+1];
+        raw.triangles[i].c = in.triangles[3*i+2];
         max_ref_idx = std::max(
                         std::max(max_ref_idx,
-                                 triangles_in[3*i+0]),
-                        std::max(triangles_in[3*i+1],
-                                 triangles_in[3*i+2])
+                                 in.triangles[3*i+0]),
+                        std::max(in.triangles[3*i+1],
+                                 in.triangles[3*i+2])
                       );
     }
-    if(max_ref_idx > n_vertices_in) {
-        ERROR("mesh input to Cork routine has an out of range vertex index.");
+    if(max_ref_idx > in.n_vertices) {
+        ERROR("mesh input to Cork routine has an out of range reference "
+              "to a vertex.");
         raw.vertices.clear();
         raw.triangles.clear();
         *mesh_out = CorkMesh(raw);
         return;
     }
     
-    for(uint i=0; i<n_vertices_in; i++) {
-        raw.vertices[i].pos.x = vertices_in[3*i+0];
-        raw.vertices[i].pos.y = vertices_in[3*i+1];
-        raw.vertices[i].pos.z = vertices_in[3*i+2];
+    for(uint i=0; i<in.n_vertices; i++) {
+        raw.vertices[i].pos.x = in.vertices[3*i+0];
+        raw.vertices[i].pos.y = in.vertices[3*i+1];
+        raw.vertices[i].pos.z = in.vertices[3*i+2];
     }
     
     *mesh_out = CorkMesh(raw);
 }
-void corkMesh2CMesh(
+void corkMesh2CorkTriMesh(
     CorkMesh *mesh_in,
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+    CorkTriMesh *out
 ) {
     RawCorkMesh raw = mesh_in->raw();
     
-    *n_triangles_out = raw.triangles.size();
-    *n_vertices_out  = raw.vertices.size();
+    out->n_triangles = raw.triangles.size();
+    out->n_vertices  = raw.vertices.size();
     
-    *triangles_out = new uint[(*n_triangles_out) * 3];
-    *vertices_out  = new float[(*n_vertices_out) * 3];
+    out->triangles = new uint[(out->n_triangles) * 3];
+    out->vertices  = new float[(out->n_vertices) * 3];
     
-    for(uint i=0; i<*n_triangles_out; i++) {
-        (*triangles_out)[3*i+0] = raw.triangles[i].a;
-        (*triangles_out)[3*i+1] = raw.triangles[i].b;
-        (*triangles_out)[3*i+2] = raw.triangles[i].c;
+    for(uint i=0; i<out->n_triangles; i++) {
+        (out->triangles)[3*i+0] = raw.triangles[i].a;
+        (out->triangles)[3*i+1] = raw.triangles[i].b;
+        (out->triangles)[3*i+2] = raw.triangles[i].c;
     }
     
-    for(uint i=0; i<*n_vertices_out; i++) {
-        (*vertices_out)[3*i+0] = raw.vertices[i].pos.x;
-        (*vertices_out)[3*i+1] = raw.vertices[i].pos.y;
-        (*vertices_out)[3*i+2] = raw.vertices[i].pos.z;
+    for(uint i=0; i<out->n_vertices; i++) {
+        (out->vertices)[3*i+0] = raw.vertices[i].pos.x;
+        (out->vertices)[3*i+1] = raw.vertices[i].pos.y;
+        (out->vertices)[3*i+2] = raw.vertices[i].pos.z;
     }
 }
 
 
+bool isSolid(CorkTriMesh cmesh)
+{
+    CorkMesh mesh;
+    corkTriMesh2CorkMesh(cmesh, &mesh);
+    
+    bool solid = true;
+    
+    if(mesh.isSelfIntersecting()) {
+        ERROR("isSolid() was given a self-intersecting mesh");
+        solid = false;
+    }
+    
+    if(!mesh.isClosed()) {
+        ERROR("isSolid() was given a non-closed mesh");
+        solid = false;
+    }
+    
+    return solid;
+}
+
 void computeUnion(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
 ) {
-    // convert input
-    CorkMesh in0, in1;
-    cMesh2CorkMesh(
-        n_triangles_in0, triangles_in0,
-        n_vertices_in0,  vertices_in0,
-        &in0);
-    cMesh2CorkMesh(
-        n_triangles_in1, triangles_in1,
-        n_vertices_in1,  vertices_in1,
-        &in1);
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
     
-    in0.boolUnion(in1);
+    cmIn0.boolUnion(cmIn1);
     
-    // convert output
-    corkMesh2CMesh(&in0,
-        n_triangles_out, triangles_out,
-        n_vertices_out, vertices_out);
+    corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
 void computeDifference(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
 ) {
-    // convert input
-    CorkMesh in0, in1;
-    cMesh2CorkMesh(
-        n_triangles_in0, triangles_in0,
-        n_vertices_in0,  vertices_in0,
-        &in0);
-    cMesh2CorkMesh(
-        n_triangles_in1, triangles_in1,
-        n_vertices_in1,  vertices_in1,
-        &in1);
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
     
-    in0.boolDiff(in1);
+    cmIn0.boolDiff(cmIn1);
     
-    // convert output
-    corkMesh2CMesh(&in0,
-        n_triangles_out, triangles_out,
-        n_vertices_out, vertices_out);
+    corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
 void computeIntersection(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
 ) {
-    // convert input
-    CorkMesh in0, in1;
-    cMesh2CorkMesh(
-        n_triangles_in0, triangles_in0,
-        n_vertices_in0,  vertices_in0,
-        &in0);
-    cMesh2CorkMesh(
-        n_triangles_in1, triangles_in1,
-        n_vertices_in1,  vertices_in1,
-        &in1);
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
     
-    in0.boolIsct(in1);
+    cmIn0.boolIsct(cmIn1);
     
-    // convert output
-    corkMesh2CMesh(&in0,
-        n_triangles_out, triangles_out,
-        n_vertices_out, vertices_out);
+    corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
 void computeSymmetricDifference(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
 ) {
-    // convert input
-    CorkMesh in0, in1;
-    cMesh2CorkMesh(
-        n_triangles_in0, triangles_in0,
-        n_vertices_in0,  vertices_in0,
-        &in0);
-    cMesh2CorkMesh(
-        n_triangles_in1, triangles_in1,
-        n_vertices_in1,  vertices_in1,
-        &in1);
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
     
-    in0.boolXor(in1);
+    cmIn0.boolXor(cmIn1);
     
-    // convert output
-    corkMesh2CMesh(&in0,
-        n_triangles_out, triangles_out,
-        n_vertices_out, vertices_out);
+    corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
 void resolveIntersections(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
 ) {
-    // convert input
-    CorkMesh in0, in1;
-    cMesh2CorkMesh(
-        n_triangles_in0, triangles_in0,
-        n_vertices_in0,  vertices_in0,
-        &in0);
-    cMesh2CorkMesh(
-        n_triangles_in1, triangles_in1,
-        n_vertices_in1,  vertices_in1,
-        &in1);
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
     
-    in0.disjointUnion(in1);
-    in0.resolveIntersections();
+    cmIn0.disjointUnion(cmIn1);
+    cmIn0.resolveIntersections();
     
-    // convert output
-    corkMesh2CMesh(&in0,
-        n_triangles_out, triangles_out,
-        n_vertices_out, vertices_out);
+    corkMesh2CorkTriMesh(&cmIn0, out);
 }
 

@@ -184,6 +184,8 @@ public:
         std::function<void(TriData &,
             VertData &, VertData &, VertData &)> func);
     
+    // checks if the mesh is closed
+    bool isClosed();
     
 public: // REMESHING module
     // REQUIRES:
@@ -194,6 +196,7 @@ public: // REMESHING module
     
 public: // ISCT (intersections) module
     void resolveIntersections(); // makes all intersections explicit
+    bool isSelfIntersecting(); // is the mesh self-intersecting?
     // TESTING
     void testingComputeStaticIsctPoints(std::vector<Vec3d> *points);
     void testingComputeStaticIsct(std::vector<Vec3d> *points,

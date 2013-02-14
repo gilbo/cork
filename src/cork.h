@@ -29,85 +29,46 @@
 typedef unsigned int uint;
 #endif
 
-// TODO: describe input format here.
+// if a mesh is taken as input, the client must manage the memory
+// if a mesh is given as output, please use the provided
+// function to free the allocated memory.
+struct CorkTriMesh
+{
+    uint    n_triangles;
+    uint    n_vertices;
+    uint    *triangles;
+    float   *vertices;
+};
 
-// the inputs to a Boolean operation must be "solid":
-//  -   closed (aka. watertight;
-//                   every edge has an even number of incident triangles)
+void freeCorkTriMesh(CorkTriMesh *mesh);
+
+// the inputs to Boolean operations must be "solid":
+//  -   closed (aka. watertight; see comment at bottom)
 //  -   non-self-intersecting
-//  -   have consistent CCW triangle orientation
-// This function will test whether or not a given mesh is solid
-bool isSolid(
-    uint n_triangles, uint *triangles,
-    uint n_vertices, float *vertices
-);
+// additionally, inputs should use a counter-clockwise convention
+// for triangle facing.  If the triangles are presented in clockwise
+// orientation, the object is interpreted as its unbounded complement
+
+// This function will test whether or not a mesh is solid
+bool isSolid(CorkTriMesh mesh);
 
 // Boolean operations follow
 // result = A U B
-void computeUnion(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
-);
+void computeUnion(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
 
 // result = A - B
-void computeDifference(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
-);
+void computeDifference(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
 
 // result = A ^ B
-void computeIntersection(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
-);
+void computeIntersection(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
 
 // result = A XOR B
 void computeSymmetricDifference(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
-);
+                        CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
 
-// An operation which is not a Boolean operation, but is related:
+// Not a Boolean operation, but related:
 //  No portion of either surface is deleted.  However, the
 //  curve of intersection between the two surfaces is made explicit,
 //  such that the two surfaces are now connected.
-void resolveIntersections(
-    // input mesh 0
-    uint n_triangles_in0, uint *triangles_in0,
-    uint n_vertices_in0, float *vertices_in0,
-    // input mesh 1
-    uint n_triangles_in1, uint *triangles_in1,
-    uint n_vertices_in1, float *vertices_in1,
-    // output mesh
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
-);
+void resolveIntersections(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
 

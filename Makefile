@@ -12,12 +12,12 @@ SUBDIRECTORIES := util file_formats math isct mesh rawmesh accel
 # make sure the subdirectories are mirrored in
 # the obj/ debug/ and depend/ directories
 # (HACK: use this dummy variable to get access to shell commands)
-SHELL_HACK := $(shell mkdir -p bin lib)
+SHELL_HACK := $(shell mkdir -p bin lib include)
 SHELL_HACK := $(shell mkdir -p $(addprefix obj/,$(SUBDIRECTORIES)))
 SHELL_HACK := $(shell mkdir -p $(addprefix debug/,$(SUBDIRECTORIES)))
 SHELL_HACK := $(shell mkdir -p $(addprefix depend/,$(SUBDIRECTORIES)))
 # also make a directory to expose headers in
-SHELL_HACK := $(shell mkdir -p $(addprefix include/,$(SUBDIRECTORIES)))
+#SHELL_HACK := $(shell mkdir -p $(addprefix include/,$(SUBDIRECTORIES)))
 
 # +----------+
 # | Platform |
@@ -121,14 +121,14 @@ MESH_HEADERS      := mesh.h mesh.decl.h \
 ACCEL_HEADERS     := aabvh.h
 FILE_HEADERS      := files.h
 HEADERS           := \
-    cork.h \
-    $(addprefix math/,$(MATH_HEADERS))\
-    $(addprefix util/,$(UTIL_HEADERS))\
-    $(addprefix isct/,$(ISCT_HEADERS))\
-    $(addprefix mesh/,$(MESH_HEADERS))\
-    $(addprefix rawmesh/,$(RAWMESH_HEADERS))\
-    $(addprefix accel/,$(ACCEL_HEADERS))\
-    $(addprefix file_formats/,$(FILE_HEADERS))
+    cork.h
+#    $(addprefix math/,$(MATH_HEADERS))\
+#    $(addprefix util/,$(UTIL_HEADERS))\
+#    $(addprefix isct/,$(ISCT_HEADERS))\
+#    $(addprefix mesh/,$(MESH_HEADERS))\
+#    $(addprefix rawmesh/,$(RAWMESH_HEADERS))\
+#    $(addprefix accel/,$(ACCEL_HEADERS))\
+#    $(addprefix file_formats/,$(FILE_HEADERS))
 HEADER_COPIES     := $(addprefix include/,$(HEADERS))
 
 # +-----------------------------+
