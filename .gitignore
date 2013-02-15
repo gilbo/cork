@@ -5,6 +5,8 @@ include/
 lib/
 obj/
 
+error_log.txt
+
 win/wincork/Debug
 win/wincork/Release
 win/wincork/*.suo

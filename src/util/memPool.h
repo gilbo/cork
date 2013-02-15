@@ -67,8 +67,8 @@ public: // main use functions
 
 private: // internal data structures
     union Block {
+        byte   datum[sizeof(T)]; // enough space for a T
         Block  *next;
-        T       datum;
     };
     struct Chunk {
         Block  *data; // array of size nBlocks

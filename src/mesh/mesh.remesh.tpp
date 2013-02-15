@@ -75,7 +75,7 @@ void Mesh<VertData, TriData>::remesh()
             out.a = in.a; out.b = in.b; out.c = in.c;
         });
         if(Files::writeTriMesh("remesh_in.off", &filemesh) > 0) {
-            ERROR("Unable to write out remesh input to remesh_in.off");
+            CORK_ERROR("Unable to write out remesh input to remesh_in.off");
         }
     }*/
     

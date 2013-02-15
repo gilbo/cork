@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
     
     // store arguments in a standard container
     std::vector<string> args(argc);
-    for(uint k=0; k<argc; k++) {
+    for(int k=0; k<argc; k++) {
         args[k] = argv[k];
     }
     

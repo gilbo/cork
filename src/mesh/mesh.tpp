@@ -72,7 +72,7 @@ bool Mesh<VertData,TriData>::valid() const
             std::ostringstream message;
             message << "vertex #" << i << " has non-finite coordinates: "
                     << verts[i].pos;
-            ERROR(message.str());
+            CORK_ERROR(message.str());
             return false;
         }
     }
@@ -86,7 +86,7 @@ bool Mesh<VertData,TriData>::valid() const
                     << "the range 0 to " << (verts.size()-1)
                     << ", but it has invalid indices: "
                     << tris[i].a << ", " << tris[i].b << ", " << tris[i].c;
-            ERROR(message.str());
+            CORK_ERROR(message.str());
             return false;
         }
     }
@@ -190,6 +190,9 @@ template<class VertData, class TriData>
 bool Mesh<VertData,TriData>::isClosed()
 {
     EGraphCache<int> chains = createEGraphCache<int>();
+    chains.for_each([&](uint i, uint j, EGraphEntry<int> &entry) {
+        entry.data = 0;
+    });
     // count up how many times each edge is encountered in one
     // orientation vs. the other
     for(Tri &tri : tris) {
@@ -246,9 +249,16 @@ typename Mesh<VertData,TriData>::NeighborCache
     return result;
 }
 
+// This function signature is an amazing disaster...
+#ifdef _WIN32
+template<class VertData, class TriData>
+template<class Edata>
+typename Mesh<VertData,TriData>::EGraphCache<Edata>
+#else
 template<class VertData, class TriData>
 template<class Edata>
 typename Mesh<VertData,TriData>::template EGraphCache<Edata>
+#endif
     Mesh<VertData,TriData>::createEGraphCache()
 {
     EGraphCache<Edata> result;

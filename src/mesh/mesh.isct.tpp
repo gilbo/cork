@@ -632,7 +632,7 @@ public:
         quantized_coords.resize(N);
         uint write = 0;
         TopoCache::verts.for_each([&](Vptr v) {
-            Vec3d raw = TopoCache::mesh->verts[v->ref].pos;
+            Vec3d raw = mesh->verts[v->ref].pos;
             quantized_coords[write].x = Quantization::quantize(raw.x);
             quantized_coords[write].y = Quantization::quantize(raw.y);
             quantized_coords[write].z = Quantization::quantize(raw.z);
@@ -1056,7 +1056,7 @@ void Mesh<VertData,TriData>::IsctProblem::findIntersections()
         }
     }
     if(nTrys <= 0) {
-        ERROR("Ran out of tries to perturb the mesh");
+        CORK_ERROR("Ran out of tries to perturb the mesh");
         exit(1);
     }
     

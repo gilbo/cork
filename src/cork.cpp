@@ -117,7 +117,7 @@ void corkTriMesh2CorkMesh(
     raw.vertices.resize(in.n_vertices);
     raw.triangles.resize(in.n_triangles);
     if(in.n_vertices == 0 || in.n_triangles == 0) {
-        ERROR("empty mesh input to Cork routine.");
+        CORK_ERROR("empty mesh input to Cork routine.");
         *mesh_out = CorkMesh(raw);
         return;
     }
@@ -135,7 +135,7 @@ void corkTriMesh2CorkMesh(
                       );
     }
     if(max_ref_idx > in.n_vertices) {
-        ERROR("mesh input to Cork routine has an out of range reference "
+        CORK_ERROR("mesh input to Cork routine has an out of range reference "
               "to a vertex.");
         raw.vertices.clear();
         raw.triangles.clear();
@@ -185,12 +185,12 @@ bool isSolid(CorkTriMesh cmesh)
     bool solid = true;
     
     if(mesh.isSelfIntersecting()) {
-        ERROR("isSolid() was given a self-intersecting mesh");
+        CORK_ERROR("isSolid() was given a self-intersecting mesh");
         solid = false;
     }
     
     if(!mesh.isClosed()) {
-        ERROR("isSolid() was given a non-closed mesh");
+        CORK_ERROR("isSolid() was given a non-closed mesh");
         solid = false;
     }
     

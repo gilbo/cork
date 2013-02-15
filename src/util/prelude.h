@@ -60,8 +60,8 @@ std::ostream &err();
 #endif // ENSURE
 
 // Use ERROR to print an error message tagged with the given file/line #
-#ifndef ERROR
-#define ERROR(message) { \
+#ifndef CORK_ERROR
+#define CORK_ERROR(message) { \
     std::cerr << "error at " \
               << __FILE__ << ", line #" << __LINE__ << ": " \
               << (message) << std::endl; \
@@ -69,7 +69,7 @@ std::ostream &err();
               << __FILE__ << ", line #" << __LINE__ << ": " \
               << (message) << std::endl; \
 }
-#endif // ERROR
+#endif // CORK_ERROR
 
 // Use MARKER for debugging to create a trace of control flow...
 #ifndef MARKER
@@ -156,7 +156,7 @@ inline double drand(double min, double max) {
     return (max-min)*rand0to1 + min;
 }
 
-inline double randMod(uint range) {
+inline uint randMod(uint range) {
     return std::rand()%range;
 }
 
