@@ -28,7 +28,6 @@
 #ifdef _WIN32
 #include <sys/timeb.h>
 #include <sys/types.h>
-#include <winsock.h>
 void gettimeofday(struct timeval* t,void* timezone)
 {       struct _timeb timebuffer;
         _ftime( &timebuffer );

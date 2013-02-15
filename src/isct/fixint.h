@@ -44,7 +44,13 @@
  */
 
 
+
+#ifdef _WIN32
+#include <mpir.h>
+#else
 #include <gmp.h>
+#endif
+
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -82,7 +88,7 @@ public:
     mp_limb_t limbs[Nlimbs];
     
     inline LimbInt(int init) {
-        ASSERT_STATIC<(sizeof(int) < sizeof(mp_limb_t))>::test();
+        ASSERT_STATIC<(sizeof(int) <= sizeof(mp_limb_t))>::test();
         limbs[0] = init;
         if(Nlimbs > 1) {
             mp_limb_t fill = SIGN_LIMB(limbs,1);
@@ -153,7 +159,7 @@ inline void add(LimbInt<Nout> &out,
         mp_limb_t rhs_is_neg = SIGN_BOOL(rhs.limbs, Nrhs);
         mp_limb_t lhs_is_neg = SIGN_BOOL(lhs.limbs, Nlhs);
         mp_limb_t fill_bit = rhs_is_neg ^ lhs_is_neg ^ carry;
-        mp_limb_t fill = -fill_bit;
+        mp_limb_t fill = (fill_bit)? ONES_PATTERN : ZERO_PATTERN;
         for(int i=Nmax; i<Nout; i++)
             out.limbs[i] = fill;
     }

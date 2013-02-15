@@ -455,7 +455,7 @@ bool isEmpty(const TriTriTriIn &input)
             join(temp_e2,       ((pi==0)? p_isct : tps[ti][0]),
                                 ((pi==1)? p_isct : tps[ti][1]));
             join(a, temp_e2,    ((pi==2)? p_isct : tps[ti][2]));
-            float test = inner(t_ext3s[ti], a);
+            double test = inner(t_ext3s[ti], a);
             if(test < 0.0) // AHA, p_isct IS outside this triangle
                 return true;
         }

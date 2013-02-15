@@ -39,7 +39,7 @@ public:
     void doSetup(Mesh &rhs);
     
     // choose what to remove
-    enum TriCode { KEEP, DELETE, FLIP };
+    enum TriCode { KEEP_TRI, DELETE_TRI, FLIP_TRI };
     void doDeleteAndFlip(
         std::function<TriCode(byte bool_alg_data)> classify
     );
@@ -270,13 +270,13 @@ void Mesh<VertData,TriData>::BoolProblem::doDeleteAndFlip(
     topocache.tris.for_each([&](Tptr tptr) {
         TriCode code = classify(boolData(tptr->ref));
         switch(code) {
-        case DELETE:
+        case DELETE_TRI:
             toDelete.push_back(tptr);
             break;
-        case FLIP:
+        case FLIP_TRI:
             topocache.flipTri(tptr);
             break;
-        case KEEP:
+        case KEEP_TRI:
         default:
             break;
         }
@@ -302,9 +302,9 @@ void Mesh<VertData,TriData>::boolUnion(Mesh &rhs)
     
     bprob.doDeleteAndFlip([](byte data) -> typename BoolProblem::TriCode {
         if((data & 2) == 2)     // part of op 0/1 INSIDE op 1/0
-            return BoolProblem::DELETE;
+            return BoolProblem::DELETE_TRI;
         else                    // part of op 0/1 OUTSIDE op 1/0
-            return BoolProblem::KEEP;
+            return BoolProblem::KEEP_TRI;
     });
 }
 
@@ -318,11 +318,11 @@ void Mesh<VertData,TriData>::boolDiff(Mesh &rhs)
     bprob.doDeleteAndFlip([](byte data) -> typename BoolProblem::TriCode {
         if(data == 2 ||         // part of op 0 INSIDE op 1
            data == 1)           // part of op 1 OUTSIDE op 0
-            return BoolProblem::DELETE;
+            return BoolProblem::DELETE_TRI;
         else if(data == 3)      // part of op 1 INSIDE op 1
-            return BoolProblem::FLIP;
+            return BoolProblem::FLIP_TRI;
         else                    // part of op 0 OUTSIDE op 1
-            return BoolProblem::KEEP;
+            return BoolProblem::KEEP_TRI;
     });
 }
 
@@ -335,9 +335,9 @@ void Mesh<VertData,TriData>::boolIsct(Mesh &rhs)
     
     bprob.doDeleteAndFlip([](byte data) -> typename BoolProblem::TriCode {
         if((data & 2) == 0)     // part of op 0/1 OUTSIDE op 1/0
-            return BoolProblem::DELETE;
+            return BoolProblem::DELETE_TRI;
         else                    // part of op 0/1 INSIDE op 1/0
-            return BoolProblem::KEEP;
+            return BoolProblem::KEEP_TRI;
     });
 }
 
@@ -350,9 +350,9 @@ void Mesh<VertData,TriData>::boolXor(Mesh &rhs)
     
     bprob.doDeleteAndFlip([](byte data) -> typename BoolProblem::TriCode {
         if((data & 2) == 0)     // part of op 0/1 OUTSIDE op 1/0
-            return BoolProblem::KEEP;
+            return BoolProblem::KEEP_TRI;
         else                    // part of op 0/1 INSIDE op 1/0
-            return BoolProblem::FLIP;
+            return BoolProblem::FLIP_TRI;
     });
 }
 

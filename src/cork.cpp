@@ -94,8 +94,10 @@ struct CorkTriangle :
     }
 };
 
-using RawCorkMesh = RawMesh<CorkVertex, CorkTriangle>;
-using CorkMesh = Mesh<CorkVertex, CorkTriangle>;
+//using RawCorkMesh = RawMesh<CorkVertex, CorkTriangle>;
+//using CorkMesh = Mesh<CorkVertex, CorkTriangle>;
+typedef RawMesh<CorkVertex, CorkTriangle>   RawCorkMesh;
+typedef Mesh<CorkVertex, CorkTriangle>      CorkMesh;
 
 void cMesh2CorkMesh(
     uint n_triangles_in, uint *triangles_in,

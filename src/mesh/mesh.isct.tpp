@@ -49,16 +49,27 @@ struct GenericTriType;
 
 struct GluePointMarker;
 
-using GVptr             = GenericVertType*;
-    using IVptr         = IsctVertType*;
-    using OVptr         = OrigVertType*;
-using GEptr             = GenericEdgeType*;
-    using IEptr         = IsctEdgeType*;
-    using OEptr         = OrigEdgeType*;
-    using SEptr         = SplitEdgeType*;
-using GTptr             = GenericTriType*;
+//using GVptr             = GenericVertType*;
+//    using IVptr         = IsctVertType*;
+//    using OVptr         = OrigVertType*;
+//using GEptr             = GenericEdgeType*;
+//    using IEptr         = IsctEdgeType*;
+//    using OEptr         = OrigEdgeType*;
+//    using SEptr         = SplitEdgeType*;
+//using GTptr             = GenericTriType*;
 
-using GluePt = GluePointMarker*;
+//using GluePt = GluePointMarker*;
+
+typedef GenericVertType*    GVptr;
+typedef IsctVertType*           IVptr;
+typedef OrigVertType*	        OVptr;
+typedef GenericEdgeType*    GEptr;
+typedef IsctEdgeType*           IEptr;
+typedef OrigEdgeType*	        OEptr;
+typedef SplitEdgeType*	        SEptr;
+typedef GenericTriType*     GTptr;
+
+typedef GluePointMarker*    GluePt;
 
 struct GenericVertType
 {

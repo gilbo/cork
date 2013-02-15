@@ -25,6 +25,8 @@
 // +-------------------------------------------------------------------------
 #pragma once
 
+#include <functional>
+
 #include "vec.h"
 
 #include <vector>

@@ -132,9 +132,12 @@ struct RemeshOptions
     struct TopoEdge;
     struct TopoTri;
     
-    using Vptr = TopoVert*;
-    using Eptr = TopoEdge*;
-    using Tptr = TopoTri*;
+    typedef TopoVert* Vptr;
+    typedef TopoEdge* Eptr;
+    typedef TopoTri*  Tptr;
+    //using Vptr = TopoVert*;
+    //using Eptr = TopoEdge*;
+    //using Tptr = TopoTri*;
 // end internal items
 
 
@@ -294,7 +297,8 @@ private:    // TopoCache Support
 private:    // Isct Support
     class  IsctProblem; // implements intersection functionality
         class TriangleProblem; // support type for IsctProblem
-        using Tprob = TriangleProblem*;
+        typedef TriangleProblem* Tprob;
+        //using Tprob = TriangleProblem*;
 private:    // Bool Support
     class BoolProblem;
     

@@ -45,7 +45,8 @@ namespace Files {
 
 struct FileVertex : public MinimalVertexData {};
 struct FileTriangle : public MinimalTriangleData {};
-using FileMesh = RawMesh<FileVertex, FileTriangle>;
+typedef RawMesh<FileVertex,FileTriangle> FileMesh;
+//using FileMesh = RawMesh<FileVertex, FileTriangle>;
 
 // generic filetype functions
 // these detect which filetype to use by inspecting the filename

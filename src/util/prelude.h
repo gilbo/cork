@@ -25,10 +25,9 @@
 // +-------------------------------------------------------------------------
 #pragma once
 
-// ensure that assert(test_expression) will work
-//#include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include <algorithm>
 #include <iostream>
 
@@ -114,6 +113,10 @@ inline double rad2deg(double rad) {
 // **********
 // * Timing
 
+#ifdef _WIN32
+#include <winsock.h>
+#endif
+
 class Timer {
 public:
     Timer(); // automatically start timer on creation
@@ -144,7 +147,7 @@ private:
 
 inline void initRand() {
     // currently none!  Should seed using clock
-    srand(time(0));
+    srand(uint(time(0)));
 }
 
 inline double drand(double min, double max) {
