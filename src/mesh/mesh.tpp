@@ -186,6 +186,34 @@ typename Mesh<VertData,TriData>::Isct
 
 
 
+template<class VertData, class TriData>
+bool Mesh<VertData,TriData>::isClosed()
+{
+    EGraphCache<int> chains = createEGraphCache<int>();
+    // count up how many times each edge is encountered in one
+    // orientation vs. the other
+    for(Tri &tri : tris) {
+        chains(tri.a, tri.b).data ++;
+        chains(tri.b, tri.a).data --;
+        
+        chains(tri.b, tri.c).data ++;
+        chains(tri.c, tri.b).data --;
+        
+        chains(tri.c, tri.a).data ++;
+        chains(tri.a, tri.c).data --;
+    }
+    // now go through and see if any of these are non-zero
+    bool closed = true;
+    chains.for_each([&](uint i, uint j, EGraphEntry<int> &entry) {
+        if(entry.data != 0)
+            closed = false;
+    });
+    return closed;
+}
+
+
+
+
 static inline
 bool contains(const ShortVec<uint, 8> &list, uint item)
 {

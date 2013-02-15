@@ -43,55 +43,49 @@ using std::ostream;
 #include "cork.h"
 
 
-void file2cmesh(
-    const Files::FileMesh &in,
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
+void file2corktrimesh(
+    const Files::FileMesh &in, CorkTriMesh *out
 ) {
-    *n_vertices_out = in.vertices.size();
-    *n_triangles_out = in.triangles.size();
+    out->n_vertices = in.vertices.size();
+    out->n_triangles = in.triangles.size();
     
-    *triangles_out = new uint[(*n_triangles_out) * 3];
-    *vertices_out  = new float[(*n_vertices_out) * 3];
+    out->triangles = new uint[(out->n_triangles) * 3];
+    out->vertices  = new float[(out->n_vertices) * 3];
     
-    for(uint i=0; i<*n_triangles_out; i++) {
-        (*triangles_out)[3*i+0] = in.triangles[i].a;
-        (*triangles_out)[3*i+1] = in.triangles[i].b;
-        (*triangles_out)[3*i+2] = in.triangles[i].c;
+    for(uint i=0; i<out->n_triangles; i++) {
+        (out->triangles)[3*i+0] = in.triangles[i].a;
+        (out->triangles)[3*i+1] = in.triangles[i].b;
+        (out->triangles)[3*i+2] = in.triangles[i].c;
     }
     
-    for(uint i=0; i<*n_vertices_out; i++) {
-        (*vertices_out)[3*i+0] = in.vertices[i].pos.x;
-        (*vertices_out)[3*i+1] = in.vertices[i].pos.y;
-        (*vertices_out)[3*i+2] = in.vertices[i].pos.z;
+    for(uint i=0; i<out->n_vertices; i++) {
+        (out->vertices)[3*i+0] = in.vertices[i].pos.x;
+        (out->vertices)[3*i+1] = in.vertices[i].pos.y;
+        (out->vertices)[3*i+2] = in.vertices[i].pos.z;
     }
 }
 
-void cmesh2file(
-    uint n_triangles_in, uint *triangles_in,
-    uint n_vertices_in, float *vertices_in,
-    Files::FileMesh &out
+void corktrimesh2file(
+    CorkTriMesh in, Files::FileMesh &out
 ) {
-    out.vertices.resize(n_vertices_in);
-    out.triangles.resize(n_triangles_in);
+    out.vertices.resize(in.n_vertices);
+    out.triangles.resize(in.n_triangles);
     
-    for(uint i=0; i<n_triangles_in; i++) {
-        out.triangles[i].a = triangles_in[3*i+0];
-        out.triangles[i].b = triangles_in[3*i+1];
-        out.triangles[i].c = triangles_in[3*i+2];
+    for(uint i=0; i<in.n_triangles; i++) {
+        out.triangles[i].a = in.triangles[3*i+0];
+        out.triangles[i].b = in.triangles[3*i+1];
+        out.triangles[i].c = in.triangles[3*i+2];
     }
     
-    for(uint i=0; i<n_vertices_in; i++) {
-        out.vertices[i].pos.x = vertices_in[3*i+0];
-        out.vertices[i].pos.y = vertices_in[3*i+1];
-        out.vertices[i].pos.z = vertices_in[3*i+2];
+    for(uint i=0; i<in.n_vertices; i++) {
+        out.vertices[i].pos.x = in.vertices[3*i+0];
+        out.vertices[i].pos.y = in.vertices[3*i+1];
+        out.vertices[i].pos.z = in.vertices[3*i+2];
     }
 }
 
-void loadMesh(string filename,
-    uint *n_triangles_out, uint **triangles_out,
-    uint *n_vertices_out, float **vertices_out
-) {
+void loadMesh(string filename, CorkTriMesh *out)
+{
     Files::FileMesh filemesh;
     
     if(Files::readTriMesh(filename, &filemesh) > 0) {
@@ -99,22 +93,13 @@ void loadMesh(string filename,
         exit(1);
     }
     
-    file2cmesh(filemesh,
-        n_triangles_out, triangles_out,
-        n_vertices_out, vertices_out
-    );
+    file2corktrimesh(filemesh, out);
 }
-void saveMesh(string filename,
-    uint n_triangles_in, uint *triangles_in,
-    uint n_vertices_in, float *vertices_in
-) {
+void saveMesh(string filename, CorkTriMesh in)
+{
     Files::FileMesh filemesh;
     
-    cmesh2file(
-        n_triangles_in, triangles_in,
-        n_vertices_in, vertices_in,
-        filemesh
-    );
+    corktrimesh2file(in, filemesh);
     
     if(Files::writeTriMesh(filename, &filemesh) > 0) {
         cerr << "Unable to write to " << filename << endl;
@@ -222,51 +207,37 @@ std::function< void(
     const std::vector<string>::iterator &
 ) >
 genericBinaryOp(
-    std::function< void(
-        // input mesh 0
-        uint n_triangles_in0, uint *triangles_in0,
-        uint n_vertices_in0, float *vertices_in0,
-        // input mesh 1
-        uint n_triangles_in1, uint *triangles_in1,
-        uint n_vertices_in1, float *vertices_in1,
-        // output mesh
-        uint *n_triangles_out, uint **triangles_out,
-        uint *n_vertices_out, float **vertices_out
-    ) > binop
+    std::function< void(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out) >
+        binop
 ) {
     return [binop]
     (std::vector<string>::iterator &args,
      const std::vector<string>::iterator &end) {
         // data...
-        uint nTri0, nTri1, nTriOut;
-        uint nVert0, nVert1, nVertOut;
-        uint *tri0, *tri1, *triOut;
-        float *vert0, *vert1, *vertOut;
+        CorkTriMesh in0;
+        CorkTriMesh in1;
+        CorkTriMesh out;
         
         if(args == end) { cerr << "too few args" << endl; exit(1); }
-        loadMesh(*args, &nTri0, &tri0, &nVert0, &vert0);
+        loadMesh(*args, &in0);
         args++;
         
         if(args == end) { cerr << "too few args" << endl; exit(1); }
-        loadMesh(*args, &nTri1, &tri1, &nVert1, &vert1);
+        loadMesh(*args, &in1);
         args++;
         
-        binop(
-            nTri0, tri0, nVert0, vert0,
-            nTri1, tri1, nVert1, vert1,
-            &nTriOut, &triOut, &nVertOut, &vertOut
-        );
+        binop(in0, in1, &out);
         
         if(args == end) { cerr << "too few args" << endl; exit(1); }
-        saveMesh(*args, nTriOut, triOut, nVertOut, vertOut);
+        saveMesh(*args, out);
         args++;
         
-        delete [] tri0;
-        delete [] tri1;
-        delete [] triOut;
-        delete [] vert0;
-        delete [] vert1;
-        delete [] vertOut;
+        freeCorkTriMesh(&out);
+        
+        delete[] in0.vertices;
+        delete[] in0.triangles;
+        delete[] in1.vertices;
+        delete[] in1.triangles;
     };
 }
 
@@ -293,6 +264,25 @@ int main(int argc, char *argv[])
     CmdList cmds;
     
     // add cmds
+    cmds.regCmd("solid",
+    "-solid in              Determine whether the input mesh represents\n"
+    "                       a solid object.  (aka. watertight) (technically\n"
+    "                         solid == closed and non-self-intersecting)",
+    [](std::vector<string>::iterator &args,
+       const std::vector<string>::iterator &end) {
+        CorkTriMesh in;
+        if(args == end) { cerr << "too few args" << endl; exit(1); }
+        string filename = *args;
+        loadMesh(*args, &in);
+        args++;
+        
+        bool solid = isSolid(in);
+        cout << "The mesh " << filename << " is: " << endl;
+        cout << "    " << ((solid)? "SOLID" : "NOT SOLID") << endl;
+        
+        delete[] in.vertices;
+        delete[] in.triangles;
+    });
     cmds.regCmd("union",
     "-union in0 in1 out     Compute the Boolean union of in0 and in1,\n"
     "                       and output the result",
@@ -308,7 +298,7 @@ int main(int argc, char *argv[])
     cmds.regCmd("xor",
     "-xor in0 in1 out       Compute the Boolean XOR of in0 and in1,\n"
     "                       and output the result\n"
-    "                       (aka. the symmetric difference)\n",
+    "                       (aka. the symmetric difference)",
     genericBinaryOp(computeSymmetricDifference));
     cmds.regCmd("resolve",
     "-resolve in0 in1 out   Intersect the two meshes in0 and in1,\n"

@@ -23,7 +23,7 @@
 // |    of the GNU Lesser General Public License
 // |    along with Cork.  If not, see <http://www.gnu.org/licenses/>.
 // +-------------------------------------------------------------------------
-#include "files.H"
+#include "files.h"
 
 #include <iostream>
 using std::cout;

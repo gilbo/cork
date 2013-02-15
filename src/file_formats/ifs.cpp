@@ -130,7 +130,8 @@ inline bool read_vertex(ifstream &in, Vec3d &data)
     bool result =   read_float32(in, temp.x) &&
                     read_float32(in, temp.y) &&
                     read_float32(in, temp.z);
-    data = temp; // coercion from float to double here
+    if(result)
+        data = temp; // coercion from float to double here
     return result;
 }
 
