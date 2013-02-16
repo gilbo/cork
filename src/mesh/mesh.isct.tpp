@@ -632,7 +632,11 @@ public:
         quantized_coords.resize(N);
         uint write = 0;
         TopoCache::verts.for_each([&](Vptr v) {
+#ifdef _WIN32
             Vec3d raw = mesh->verts[v->ref].pos;
+#else
+            Vec3d raw = TopoCache::mesh->verts[v->ref].pos;
+#endif
             quantized_coords[write].x = Quantization::quantize(raw.x);
             quantized_coords[write].y = Quantization::quantize(raw.y);
             quantized_coords[write].z = Quantization::quantize(raw.z);
