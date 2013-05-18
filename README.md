@@ -3,9 +3,9 @@ Cork Boolean Library
 
 Welcome to the Cork Boolean/CSG library.  Cork is designed to support Boolean operations between triangle meshes.
 
-Surprisingly, most Boolean/CSG libraries available today (early 2013) are not robust.  Due to floating-point error, some valid inputs will cause segmentation faults or produce grossly inaccurate results (e.g. nothing).  The few libraries which are robust (e.g. CGAL) require the user to correctly configure the arithmetic settings to ensure robustness.
+Surprisingly, most Boolean/CSG libraries available today (early 2013) are not robust to numerical errors.  Floating-point errors often lead to segmentation faults or produce grossly inaccurate results (e.g. nothing) despite the code being provided .  The few libraries which are robust (e.g. CGAL) require the user to correctly configure the arithmetic settings to ensure robustness.
 
-Cork is designed with the philosophy that you, the user, don't know and don't care about esoteric problems with floating point arithmetic.  You just want a Boolean library with a simple interface, that you can rely on.
+Cork is designed with the philosophy that you, the user, don't know and don't care about esoteric problems with floating point arithmetic.  You just want a Boolean library with a simple interface, that you can rely on...  Unfortunately since Cork is still in ongoing development, this may be more or less true at the moment.  This code should be very usable for a research project, perhaps slightly less so for use in a product.
 
 Cork was developed by Gilbert Bernstein, a computer scientist who has worked on robust geometric intersections in various projects since 2007.  He's reasonably confident he knows what he's doing. =D
 
@@ -50,5 +50,15 @@ Cork uses C++11, so you will need the most recent compiler; Visual Studio 2012 o
 Once this is done, you can use the solution and project files in the /win/ subdirectory to build the demo program.  The solution/project is not currently configured to build a DLL.  Please bug me if this is an issue for you.
 
 
+Licensing
+=========
+
+Cork is licensed under the LGPL with an exception (from QT) to more easily allow use of template code.  In plain English, the following are some guidelines on the use of this code:
+
+*  Unless you also intend to release your project under LGPL/GPL, you must make sure to DYNAMICALLY link against the Cork library.  However, you may include unmodified header files without compromising your proprietary code.
+
+*  If you distribute your code, (publicly or privately, compiled or in source form, for free or commercially) you must (a) acknowledge your use of Cork, (b) include the COPYRIGHT information and (c) either distribute the Cork code or clearly indicate where a copy may be found.
+
+Of course, none of the above supercedes the actual COPYRIGHT.
 
 
