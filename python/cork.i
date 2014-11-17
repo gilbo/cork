@@ -73,9 +73,7 @@ import_array();
   /* how to track allocations.. we can't free this since  */
   $1.n_triangles = d1[0];
   $1.n_vertices = d2[0];
-  /* very strange -- SWIG generates incorrect code if this A doesn't
-     have an argnum. */
-  $1.triangles = (uint *)PyArray_DATA(a$argnum);
+  $1.triangles = (uint *)PyArray_DATA(a);
   $1.vertices = (float *)PyArray_DATA(b);
 }
 
