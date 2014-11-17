@@ -1,3 +1,22 @@
+/* This file is part of the Cork library.
+
+ * Cork is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+
+ * Cork is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+
+ * You should have received a copy 
+ * of the GNU Lesser General Public License
+ * along with Cork.  If not, see <http://www.gnu.org/licenses/>.
+ */
+/*
+ * @author Stephen Dawson-Haggerty <stevedh@eecs.berkeley.edu>
+ */
 
 %module cork
 %{
@@ -10,9 +29,13 @@
 import_array();
 %}
 
-/* Create typemaps for mapping python types to/from a CorkTriMesh */
-%typemap(in) CorkTriMesh {
-  PyObject *a, *b;
+/* Create typemaps for mapping python types to/from a CorkTriMesh 
+ *
+ * We allocate temporary PyObjects so that we can use the
+ * PyArray_FromAny to accept a lot of different potential kinds of
+ * matrixes.  These get cleaned up by the freearg typemap.
+ */
+%typemap(in) CorkTriMesh (PyObject *a = NULL, PyObject *b = NULL) {
   npy_intp *d1, *d2;
 
   if (!PyTuple_Check($input) || PyTuple_Size($input) != 2) {
@@ -23,6 +46,7 @@ import_array();
   b = PyTuple_GetItem($input, 1);
   if (a == NULL || b == NULL) {
     PyErr_SetString(PyExc_ValueError, "argument must not be none");
+    a = b = NULL;
     return NULL;
   }
 
@@ -34,6 +58,7 @@ import_array();
   b = PyArray_FromAny(b, PyArray_DescrFromType(NPY_FLOAT), 2, 2, NPY_ARRAY_CARRAY, NULL);
   if (b == NULL) {
     Py_DECREF(a);
+    a = b = NULL;
     return NULL;
   }
 
@@ -48,8 +73,19 @@ import_array();
   /* how to track allocations.. we can't free this since  */
   $1.n_triangles = d1[0];
   $1.n_vertices = d2[0];
-  $1.triangles = (uint *)PyArray_DATA(a);
+  /* very strange -- SWIG generates incorrect code if this A doesn't
+     have an argnum. */
+  $1.triangles = (uint *)PyArray_DATA(a$argnum);
   $1.vertices = (float *)PyArray_DATA(b);
+}
+
+%typemap(freearg) CorkTriMesh {
+  if (a$argnum) {
+    Py_DECREF(a$argnum);
+  }
+  if (b$argnum) {
+    Py_DECREF(b$argnum);
+  }
 }
 
 /* allocate a temporary CorkTriMesh on the way in for use as an output
