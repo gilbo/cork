@@ -22,11 +22,69 @@
 %{
 #include <numpy/arrayobject.h>
 #include "cork.h"
+
+
+/* create a "base object" that lets us use the memory returned by the
+ *  cork library.  this is DECREFed when the numpy array we return is
+ *  deleted, and we can use that to free the c++ array using the
+ *  appropriate deallocator.
+ */
+typedef struct {
+  PyObject_HEAD
+  uint *triangles;
+  float *vertices;
+} _DeleteObject;
+
+static void _DeleteObject_dealloc(PyObject *self) {
+  _DeleteObject *real_self = (_DeleteObject *)self;
+  if (real_self->triangles) {
+    delete real_self->triangles;
+  }
+  if (real_self->vertices) {
+    delete real_self->vertices;
+  }
+  self->ob_type->tp_free((PyObject *)self);
+}
+
+static PyTypeObject _DeleteObjectType = {
+  PyObject_HEAD_INIT(NULL)
+  0, 
+  "delete_deallocator",
+  sizeof(_DeleteObject),
+  0,
+  _DeleteObject_dealloc,         /* tp_dealloc */
+  0, /*tp_print*/
+  0, /*tp_getattr*/
+  0, /*tp_setattr*/
+  0, /*tp_compare*/
+  0, /*tp_repr*/
+  0, /*tp_as_number*/
+  0, /*tp_as_sequence*/
+  0, /*tp_as_mapping*/
+  0, /*tp_hash */
+  0, /*tp_call*/
+  0, /*tp_str*/
+  0, /*tp_getattro*/
+  0, /*tp_setattro*/
+  0, /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT, /*tp_flags*/
+  "c++ delete deallocator", /* tp_doc */
+};
+
 %}
 
 %init %{
-/* do this, or segfault */
-import_array();
+  /* do this, or segfault */
+  import_array();
+
+  /* add the new deallocator type to the system */
+  _DeleteObjectType.tp_new = PyType_GenericNew;
+  if (PyType_Ready(&_DeleteObjectType) < 0) {
+    return;
+  }
+
+  Py_INCREF(&_DeleteObjectType);
+  PyModule_AddObject(m, "_cork", (PyObject *)&_DeleteObjectType);
 %}
 
 /* Create typemaps for mapping python types to/from a CorkTriMesh 
@@ -98,8 +156,11 @@ import_array();
 %typemap(argout) CorkTriMesh *OUTPUT {
   /* return some numpy arrays with the coordinates in there */
   PyObject *a, *b;
+  _DeleteObject *base_a, *base_b;
   npy_intp dims[2];
   dims[1] = 3;
+
+
 
   dims[0] = temp$argnum.n_triangles;
   a = PyArray_SimpleNewFromData(2, dims, NPY_UINT, temp$argnum.triangles);
@@ -107,7 +168,22 @@ import_array();
   dims[0] = temp$argnum.n_vertices;
   b = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, temp$argnum.vertices);
 
+  /* set a base object on the numpy array that will deallocate our c++ buffer */
+  base_a = PyObject_New(_DeleteObject, &_DeleteObjectType);
+  base_a->triangles = temp$argnum.triangles;
+  base_a->vertices = NULL;
+  PyArray_SetBaseObject((PyArrayObject *)a, (PyObject *)base_a);
+
+  base_b = PyObject_New(_DeleteObject, &_DeleteObjectType);
+  base_b->triangles = NULL;
+  base_b->vertices = temp$argnum.vertices;
+  PyArray_SetBaseObject((PyArrayObject *)b, (PyObject *)base_b);
+
+
   $result = Py_BuildValue("(OO)", a, b);
+  /* BuildValue calls Py_INCREF on its arguments */
+  Py_DECREF(a);
+  Py_DECREF(b);
 }
 
 /* Export the Cork API */
