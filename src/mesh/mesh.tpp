@@ -250,7 +250,7 @@ typename Mesh<VertData,TriData>::NeighborCache
 }
 
 // This function signature is an amazing disaster...
-#ifdef _WIN32
+#ifdef _MSC_VER
 template<class VertData, class TriData>
 template<class Edata>
 typename Mesh<VertData,TriData>::EGraphCache<Edata>
