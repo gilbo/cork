@@ -9,6 +9,8 @@ error_log.txt
 
 win/wincork/Debug
 win/wincork/Release
+win/wincork/x64/Debug
+win/wincork/x64/Release
 win/wincork/*.suo
 win/wincork/*.vcxproj.user
 win/wincork/*.sdf
