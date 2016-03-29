@@ -9,6 +9,8 @@ Cork is designed with the philosophy that you, the user, don't know and don't ca
 
 Cork was developed by Gilbert Bernstein, a computer scientist who has worked on robust geometric intersections in various projects since 2007.  He's reasonably confident he knows what he's doing. =D
 
+WARNING: Unfortunately, there are a number of known problems with Cork.  I have zero time to work on the library since I'm currently busy working on a thesis. (March 2016) If you would like to pay me large sums of money to improve this library, maybe we should talk.  Otherwise, I'm really quite sorry to say I don't have time.
+
 
 Installation
 ============
