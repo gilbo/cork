@@ -44,13 +44,22 @@ that's it.
 If the build system is unable to find your GMP installation, please edit the paths in file makeConstants.  In general, the project uses a basic makefile.  In the event that you have to do something more complicated to get the library to compile, or if you are unable to get it to compile, please e-mail me or open an issue on GitHub.  Doing so is much more effective than cursing at your computer, and will save other users trouble in the future.
 
 
-Windows
+Windows Native
 ----
 
 Cork uses C++11, so you will need the most recent compiler; Visual Studio 2012 or higher please.  You will also need to install the MPIR arithmetic library into your Visual Studio environment.
 
 Once this is done, you can use the solution and project files in the /win/ subdirectory to build the demo program.  The solution/project is not currently configured to build a DLL.  Please bug me if this is an issue for you.
 
+
+Cross-Compiling on Unix for Windows
+-----------------------------------
+
+Cork can be cross compiled for windows using [mingw-w64](http://mingw-w64.sourceforge.net) and [wclang](https://github.com/tpoechtrager/wclang) which is a clang frontend for mingw. You first need to cross compile the GMP library using mingw-w64 and then:
+
+    make CC=w32-clang CXX=w32-clang++ GMP_INC_DIR=/usr/i686-w64-mingw32/include/ GMP_LIB_DIR=/usr/i686-w64-mingw32/lib/
+
+Tune the `GMP_INC_DIR` and `GMP_LIB_DIR` variables according to where gmp was compiled. It should build a Windows executable under `bin/cork`. You can rename it `cork.exe` and you are set.
 
 Licensing
 =========
