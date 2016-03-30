@@ -62,7 +62,7 @@ INC       := $(INC) $(GMPINC)
 # use the second line to disable profiling instrumentation
 # PROFILING := -pg
 PROFILING :=
-CCFLAGS   := -Wall $(INC) $(CONFIG) -O2 -DNDEBUG $(PROFILING)
+CCFLAGS   := -Wall $(INC) $(CONFIG) -O2 -DNDEBUG $(PROFILING) -fPIC
 CXXFLAGS  := $(CCFLAGS) $(CPP11_FLAGS)
 CCDFLAGS  := -Wall $(INC) $(CONFIG) -ggdb
 CXXDFLAGS := $(CCDFLAGS)
@@ -195,6 +195,7 @@ obj/isct/triangle.o: src/isct/triangle.c
 	@echo "Compiling the Triangle library"
 	@$(CC) -O2 -DNO_TIMER \
                -DREDUCED \
+               -fPIC \
                -DCDT_ONLY -DTRILIBRARY \
                -Wall -DANSI_DECLARATORS \
                -o obj/isct/triangle.o -c src/isct/triangle.c
