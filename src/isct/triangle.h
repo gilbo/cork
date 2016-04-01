@@ -251,20 +251,20 @@
 struct triangulateio {
   REAL *pointlist;                                               /* In / out */
   REAL *pointattributelist;                                      /* In / out */
-  int *pointmarkerlist;                                          /* In / out */
+  __int64 *pointmarkerlist;                                          /* In / out */
   int numberofpoints;                                            /* In / out */
   int numberofpointattributes;                                   /* In / out */
 
-  int *trianglelist;                                             /* In / out */
+  __int64 *trianglelist;                                             /* In / out */
   REAL *triangleattributelist;                                   /* In / out */
   REAL *trianglearealist;                                         /* In only */
-  int *neighborlist;                                             /* Out only */
+  __int64 *neighborlist;                                             /* Out only */
   int numberoftriangles;                                         /* In / out */
   int numberofcorners;                                           /* In / out */
   int numberoftriangleattributes;                                /* In / out */
 
-  int *segmentlist;                                              /* In / out */
-  int *segmentmarkerlist;                                        /* In / out */
+  __int64 *segmentlist;                                              /* In / out */
+  __int64 *segmentmarkerlist;                                        /* In / out */
   int numberofsegments;                                          /* In / out */
 
   REAL *holelist;                        /* In / pointer to array copied out */
@@ -273,8 +273,8 @@ struct triangulateio {
   REAL *regionlist;                      /* In / pointer to array copied out */
   int numberofregions;                                    /* In / copied out */
 
-  int *edgelist;                                                 /* Out only */
-  int *edgemarkerlist;            /* Not used with Voronoi diagram; out only */
+  __int64 *edgelist;                                                 /* Out only */
+  __int64 *edgemarkerlist;            /* Not used with Voronoi diagram; out only */
   REAL *normlist;                /* Used only with Voronoi diagram; out only */
   int numberofedges;                                             /* Out only */
 };
