@@ -43,7 +43,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\Gilbert\Documents\GitHub\cork\src;C:\Users\Gilbert\Documents\GitHub\cork\src\accel;C:\Users\Gilbert\Documents\GitHub\cork\src\file_formats;C:\Users\Gilbert\Documents\GitHub\cork\src\isct;C:\Users\Gilbert\Documents\GitHub\cork\src\math;C:\Users\Gilbert\Documents\GitHub\cork\src\mesh;C:\Users\Gilbert\Documents\GitHub\cork\src\rawmesh;C:\Users\Gilbert\Documents\GitHub\cork\src\util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\src\accel;$(ProjectDir)..\..\src\file_formats;$(ProjectDir)..\..\src\isct;$(ProjectDir)..\..\src\math;$(ProjectDir)..\..\src\mesh;$(ProjectDir)..\..\src\rawmesh;$(ProjectDir)..\..\src\util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_USE_MATH_DEFINES;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -58,7 +58,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>C:\Users\Gilbert\Documents\GitHub\cork\src;C:\Users\Gilbert\Documents\GitHub\cork\src\accel;C:\Users\Gilbert\Documents\GitHub\cork\src\file_formats;C:\Users\Gilbert\Documents\GitHub\cork\src\isct;C:\Users\Gilbert\Documents\GitHub\cork\src\math;C:\Users\Gilbert\Documents\GitHub\cork\src\mesh;C:\Users\Gilbert\Documents\GitHub\cork\src\rawmesh;C:\Users\Gilbert\Documents\GitHub\cork\src\util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\src\accel;$(ProjectDir)..\..\src\file_formats;$(ProjectDir)..\..\src\isct;$(ProjectDir)..\..\src\math;$(ProjectDir)..\..\src\mesh;$(ProjectDir)..\..\src\rawmesh;$(ProjectDir)..\..\src\util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_USE_MATH_DEFINES;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
