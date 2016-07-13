@@ -258,3 +258,26 @@ void resolveIntersections(
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
+void computeFirst(
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
+) {
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
+    
+    cmIn0.boolFirst(cmIn1);
+    
+    corkMesh2CorkTriMesh(&cmIn0, out);
+}
+
+void computeSecond(
+    CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out
+) {
+    CorkMesh cmIn0, cmIn1;
+    corkTriMesh2CorkMesh(in0, &cmIn0);
+    corkTriMesh2CorkMesh(in1, &cmIn1);
+    
+    cmIn1.boolFirst(cmIn0);
+    
+    corkMesh2CorkTriMesh(&cmIn1, out);
+}

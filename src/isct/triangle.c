@@ -3295,8 +3295,11 @@ struct behavior *b;
   int increment;
   int meshnumber;
 #endif /* not TRILIBRARY */
-  int i, j, k;
+  int i, j;
+#ifndef CDT_ONLY
+  int k;
   char workstring[FILENAMESIZE];
+#endif
 
   b->poly = b->refine = b->quality = 0;
   b->vararea = b->fixedarea = b->usertest = 0;

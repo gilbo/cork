@@ -305,8 +305,15 @@ int main(int argc, char *argv[])
     "                       and output the connected mesh with those\n"
     "                       intersections made explicit and connected",
     genericBinaryOp(resolveIntersections));
-    
-    
+    cmds.regCmd("first",
+    "-first in0 in1 out     Compute the first mesh in0 cut by the second mesh in1,\n"
+    "                       and output the result",
+    genericBinaryOp(computeFirst));
+    cmds.regCmd("second",
+    "-second in0 in1 out     Compute the second mesh in1 cut by the first mesh in0,\n"
+    "                       and output the result",
+    genericBinaryOp(computeSecond));    
+
     cmds.runCommands(arg_it, args.end());
     
     return 0;
