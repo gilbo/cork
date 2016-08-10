@@ -150,6 +150,11 @@ inline void initRand() {
     srand(uint(time(0)));
 }
 
+inline void initRand(uint seed) {
+    // currently none!  Should seed using clock
+    srand(seed);
+}
+
 inline double drand(double min, double max) {
     const double invMAX = 1.0/double(RAND_MAX);
     double rand0to1 = double(std::rand())*invMAX;

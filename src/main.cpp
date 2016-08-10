@@ -244,7 +244,10 @@ genericBinaryOp(
 
 int main(int argc, char *argv[])
 {
-    initRand(); // that's useful
+    if(argc>=6){
+        initRand(atoi(argv[5])); //use the 4th argument to set the seed
+    }else
+        initRand();
     
     if(argc < 2) {
         cout << "Please type 'cork -help' for instructions" << endl;
