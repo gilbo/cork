@@ -35,8 +35,8 @@ PLATFORM := $(shell uname)
 # | Programs |
 # +----------+
 CPP11_FLAGS := -std=c++11
-CC  := clang
-CXX := clang++
+CC  := gcc
+CXX := g++
 ifeq ($(PLATFORM),Darwin) # on mac
     CPP11_FLAGS := $(CPP11_FLAGS) -stdlib=libc++ -Wno-c++11-extensions
 endif
