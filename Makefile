@@ -79,6 +79,12 @@ ifeq ($(PLATFORM),Darwin)
   LINKD := $(LINK) -Wl,-no_pie
 endif
 
+ARCH = $(shell uname -m)
+
+ifeq ($(findstring x86_64,$(ARCH)), x86_64)
+  CCFLAGS += -m64
+  CXXFLAGS+= -m64
+endif
 
 # ***********************
 # * SOURCE DECLARATIONS *
