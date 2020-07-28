@@ -206,6 +206,9 @@ void computeUnion(
     
     cmIn0.boolUnion(cmIn1);
     
+    if(out->remesh)
+        cmIn0.remesh();
+    
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
@@ -217,6 +220,9 @@ void computeDifference(
     corkTriMesh2CorkMesh(in1, &cmIn1);
     
     cmIn0.boolDiff(cmIn1);
+    
+    if(out->remesh)
+        cmIn0.remesh();
     
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
@@ -230,6 +236,9 @@ void computeIntersection(
     
     cmIn0.boolIsct(cmIn1);
     
+    if(out->remesh)
+        cmIn0.remesh();
+    
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
@@ -241,6 +250,9 @@ void computeSymmetricDifference(
     corkTriMesh2CorkMesh(in1, &cmIn1);
     
     cmIn0.boolXor(cmIn1);
+    
+    if(out->remesh)
+        cmIn0.remesh();
     
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
@@ -255,6 +267,9 @@ void resolveIntersections(
     cmIn0.disjointUnion(cmIn1);
     cmIn0.resolveIntersections();
     
+    if(out->remesh){
+        cmIn0.remesh();
+    }
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
 
@@ -266,6 +281,9 @@ void computeFirst(
     corkTriMesh2CorkMesh(in1, &cmIn1);
     
     cmIn0.boolFirst(cmIn1);
+
+    if(out->remesh)
+        cmIn0.remesh();
     
     corkMesh2CorkTriMesh(&cmIn0, out);
 }
@@ -278,6 +296,21 @@ void computeSecond(
     corkTriMesh2CorkMesh(in1, &cmIn1);
     
     cmIn1.boolFirst(cmIn0);
+
+    if(out->remesh)
+        cmIn1.remesh();
     
     corkMesh2CorkTriMesh(&cmIn1, out);
+}
+
+
+void remeshTriangles(
+    CorkTriMesh in, CorkTriMesh *out
+) {
+    CorkMesh cmIn;
+    corkTriMesh2CorkMesh(in, &cmIn);
+
+    cmIn.remesh();
+    
+    corkMesh2CorkTriMesh(&cmIn, out);
 }

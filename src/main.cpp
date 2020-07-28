@@ -42,6 +42,7 @@ using std::ostream;
 
 #include "cork.h"
 
+int doremesh=0;
 
 void file2corktrimesh(
     const Files::FileMesh &in, CorkTriMesh *out
@@ -165,6 +166,7 @@ void CmdList::printHelp(ostream &out)
     out <<
     "Welcome to Cork.  Usage:" << endl <<
     "  > cork [-command arg0 arg1 ... argn]*" << endl <<
+    "       if --command is used, a remesh is applied to the output" << endl <<
     "for example," << endl <<
     "  > cork -union box0.off box1.off result.off" << endl <<
     "Options:" << endl;
@@ -184,6 +186,10 @@ void CmdList::runCommands(std::vector<string>::iterator &arg_it,
             exit(1);
         }
         arg_cmd = arg_cmd.substr(1);
+        if(arg_cmd[0] == '-') {
+            doremesh=1;
+            arg_cmd = arg_cmd.substr(1);
+        }
         arg_it++;
         
         bool found = true;
@@ -217,6 +223,8 @@ genericBinaryOp(
         CorkTriMesh in0;
         CorkTriMesh in1;
         CorkTriMesh out;
+
+        out.remesh=doremesh;
         
         if(args == end) { cerr << "too few args" << endl; exit(1); }
         loadMesh(*args, &in0);
@@ -316,6 +324,30 @@ int main(int argc, char *argv[])
     "-second in0 in1 out     Compute the second mesh in1 cut by the first mesh in0,\n"
     "                       and output the result",
     genericBinaryOp(computeSecond));    
+
+    // add cmds
+    cmds.regCmd("remesh",
+    "-remesh in out         Remesh the input mesh to remove poorly shaped triangles",
+    [](std::vector<string>::iterator &args,
+       const std::vector<string>::iterator &end) {
+        CorkTriMesh in;
+        CorkTriMesh out;
+
+        if(args == end) { cerr << "too few args" << endl; exit(1); }
+        loadMesh(*args, &in);
+        args++;
+
+        remeshTriangles(in, &out);
+
+        if(args == end) { cerr << "too few args" << endl; exit(1); }
+        saveMesh(*args, out);
+        args++;
+
+        freeCorkTriMesh(&out);
+
+        delete[] in.vertices;
+        delete[] in.triangles;
+    });
 
     cmds.runCommands(arg_it, args.end());
     
