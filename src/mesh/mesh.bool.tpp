@@ -356,17 +356,17 @@ void Mesh<VertData,TriData>::boolXor(Mesh &rhs)
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+template<class VertData, class TriData>
+void Mesh<VertData,TriData>::boolFirst(Mesh &rhs)
+{
+    BoolProblem bprob(this);
+    
+    bprob.doSetup(rhs);
+    
+    bprob.doDeleteAndFlip([](byte data) -> typename BoolProblem::TriCode {
+        if(data == 1)           // part of op 1 OUTSIDE op 0
+            return BoolProblem::DELETE_TRI;
+        else                    // otherwise
+            return BoolProblem::KEEP_TRI;
+    });
+}

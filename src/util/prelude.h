@@ -25,11 +25,13 @@
 // +-------------------------------------------------------------------------
 #pragma once
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
 #include <iostream>
+#include <sys/time.h>
 
 #ifndef uint
 typedef unsigned int uint;
@@ -37,6 +39,10 @@ typedef unsigned int uint;
 
 #ifndef byte
 typedef unsigned char byte;
+#endif
+
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
 #endif
 
 // ***********
@@ -148,6 +154,11 @@ private:
 inline void initRand() {
     // currently none!  Should seed using clock
     srand(uint(time(0)));
+}
+
+inline void initRand(uint seed) {
+    // currently none!  Should seed using clock
+    srand(seed);
 }
 
 inline double drand(double min, double max) {

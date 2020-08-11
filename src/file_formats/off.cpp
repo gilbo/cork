@@ -93,6 +93,7 @@ int writeOFF(string filename, FileMesh *data)
     int numfaces = data->triangles.size();
     out << numvertices << ' ' << numfaces << ' ' << 0 << endl;
     
+    out.precision(18);
     // vertex data
     for(const auto &v : data->vertices) {
         const Vec3d &p = v.pos;

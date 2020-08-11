@@ -38,6 +38,7 @@ struct CorkTriMesh
     uint    n_vertices;
     uint    *triangles;
     float   *vertices;
+    uint    remesh;
 };
 
 void freeCorkTriMesh(CorkTriMesh *mesh);
@@ -72,3 +73,9 @@ void computeSymmetricDifference(
 //  such that the two surfaces are now connected.
 void resolveIntersections(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
 
+// result = A cut by B
+void computeFirst(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
+// result = B cut by A
+void computeSecond(CorkTriMesh in0, CorkTriMesh in1, CorkTriMesh *out);
+// result = remesh(A)
+void remeshTriangles(CorkTriMesh in, CorkTriMesh *out);

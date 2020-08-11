@@ -212,6 +212,7 @@ public: // BOOLean operation module
     void boolDiff(Mesh &rhs);
     void boolIsct(Mesh &rhs);
     void boolXor(Mesh &rhs);
+    void boolFirst(Mesh &rhs);
     
 private:    // Internal Formats
     struct Tri {

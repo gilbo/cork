@@ -35,8 +35,8 @@ PLATFORM := $(shell uname)
 # | Programs |
 # +----------+
 CPP11_FLAGS := -std=c++11
-CC  := clang
-CXX := clang++
+CC  := gcc
+CXX := g++
 ifeq ($(PLATFORM),Darwin) # on mac
     CPP11_FLAGS := $(CPP11_FLAGS) -stdlib=libc++ -Wno-c++11-extensions
 endif
@@ -79,6 +79,12 @@ ifeq ($(PLATFORM),Darwin)
   LINKD := $(LINK) -Wl,-no_pie
 endif
 
+ARCH = $(shell uname -m)
+
+ifeq ($(findstring x86_64,$(ARCH)), x86_64)
+  CCFLAGS += -m64
+  CXXFLAGS+= -m64
+endif
 
 # ***********************
 # * SOURCE DECLARATIONS *
